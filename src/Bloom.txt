@@ -1,0 +1,422 @@
+Dísznövény webshop gyakorló
+Klónozza a https://github.com/SzoftTeszt/webshopDisznovenyFeladat.git címen található alkalmazást, mely egy dísznövénykertészet félig kész webshopja. Tanulmányozza a forráskódot a következő feladatban ezt a kódot kell módosítania. Az Ön feladata a növények megjelenítése, keresés biztosítása a növények adathalmazában, annak a megvalósítása, hogy a felhasználó az általa kiválasztott növényeket hozzá tudja adni a kosárhoz. Továbbá a megrendelő adatainak bekérése és a megrendelés backend felé elküldése. A webshop működéséhez szükséges egyéb feladatokkal (pl.: Authentication) nem szükséges foglalkoznia. A feladatok megoldásában segítségére lehet, ha tanulmányozza a Mintak mappában vagy a feladat végén nyomtatott formában is megtekinthető képeket. Ezektől a megoldás során vizualitásban eltérhet, de törekedjen a feladatban leírt funkciók megvalósítására.
+git clone https://github.com/SzoftTeszt/webshopDisznovenyFeladat.git
+cd mappa
+ng serve -o 
+code .
+1) Feladat (15 pont)
+Lépjen be a Google mail szolgáltatásba (felhasználó név:, jelszó:) és regisztráljon új projectet Firebase-ben, hozzon létre FrontEnd WebApp-ot és konfiguráljon Realtime adatbázist teszt szabályokkal. Egészítse ki az enviroments.ts-t a firebase konfigurációval. Az adatbázisban rögzíteni kívánja növények esetében megnevezést, leírást, a növény fényképének címét és az árát. A növények adatait a noveny.json tartalmazza, ezt a fájlt importálja a backend adatbázisba. Megrendelés esetében a megrendelő nevét, címét, és a rendelt növény azonosítóját és darabszámát a megrendelés dátumát és státuszát. Ehhez nem állnak rendelkezésre teszt adatok. (Egy megrendelő több növényt is rendelhet egyszerre).
+enviroments.ts
+export const Enviroments = {
+	production: false,
+	firebaseConfig: {
+		8 sor a Firebase-ből, Realtime database frissítése után
+	}
+}
+ 
+2) Feladat 15 pont
+Készítse el az adat modelleket a model mappában található noveny.ts és megrendeles.ts-ben!
+noveny.json
+{
+  "-NYITeN0CKoMQvHSE7YE": {
+    "ar": "1290",
+    "kepUrl": "https://webshop.oazis.hu/Images/Products/torpe_chili_paprika.jpg",
+    "leiras": "Magasság: 30 cm, terebélyes  Ajánlott sortáv: 40 cm Ajánlott tőtáv: 30 cm Kiültetés ideje: a tavaszi fagyok elmúltával (május eleje)  Betakarítás: nyár közepétől szeptemberig. Konténerben akár egész éven át. Termés: 4-5 cm, pirosra érik, hosszúkás, vékony húsú, kifejezetten csípős  Kedveli a morzsalékos, tápanyaggal jól ellátott talajokat. Fontos, hogy a talaj ne tömörödjön be, ezért érdemes néha meglazítani a talaját. Akár konténerben is nevelhető, kiváló balkonfajta. Kifejezetten fényigényes. Árnyékban, félárnyékos helyeken nem fejlődik megfelelően. Vízigénye viszonylag nagy, gyakran, kisebb vízadagokkal öntözzük. A szárazságot viszonylag jól tűri, de lehetőség szerint folyamatosan öntözzük.",
+    "megnevezes": "Törpe chili/Basket of Fire paprika palánta 12 cm-es cserépben"
+  }
+}
+noveny.ts
+export class Noveny {
+	key ?: string		//könnyebb kereshetőség miatt adjuk hozzá
+	ar ?: number
+	kepUrl ?: string
+	leiras ?: string
+	megnevezes ?: string
+}  // az adatmodellt a fent látható json-ban használt kulcsok szerint hozzuk létre
+Megrendelés esetében a megrendelő nevét, címét, és a rendelt növény azonosítóját és darabszámát a megrendelés dátumát és státuszát. Ehhez nem állnak rendelkezésre teszt adatok. (Egy megrendelő több növényt is rendelhet egyszerre).
+megrendeles.ts
+export class Megrendeles {
+	nev ?: string
+	cim ?: string
+	datum ?: string
+	statusz ?: string
+	tetelek ?: any [ ]//üres tömb, később töltjük fel a növény azonosítójával és a rendel darabszámmal
+}
+3) Feladat (15 pont)
+Készítsen a part mappába két új komponest novenyek és rendeles néven. Tanulmányozza a navbart (part/nav/) Állítsa be a routing-ot (app-routing.module.ts) és a navbart komponest, a linkek megjelenített címkéjén és azonosítóján ne változtasson!
+ng g c part/novenyek
+ng g c part/rendeles
+app-routing.module.ts
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
+importok itt hozzáadódnak, ha nem, akkor manuálisan hozzá kell adni
+
+const routes: Routes = [
+	{ path : ’’  ’’ , component: RolunkComponent }
+	{ path : ’’**’’, component: RolunkComponent }
+	{ path : ’’novenyek’’, component: NovenyekComponent }
+	{ path : ’’rendeles’’, component: RendelesComponent }
+];
+
+@NgModule({
+  imports: [RouterModule.forRoot(routes)],
+  exports: [RouterModule]
+})
+export class AppRoutingModule { }
+ 
+nav.component.html
+<nav class="navbar navbar-expand-lg bg-light">
+    <div class="container-fluid">
+      <a class="navbar-brand" routerLink="">DíszNövény WebShop</a>
+      <button (click)="collapse=!collapse" class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div [ngbCollapse]="collapse" class="collapse navbar-collapse" id="navbarSupportedContent">
+
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+          <li class="nav-item">
+            <a class="nav-link" 
+            routerLink=""
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{exact:true}"
+            >Rólunk</a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link" 
+            routerLink="/novenyek"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{exact:true}"
+            >Növények</a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link"
+            routerLink="/rendeles"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{exact:true}">
+            Rendelés</a>
+          </li>
+       
+        </ul>
+       
+      </div>
+    </div>
+  </nav>
+ 
+4) Feladat (20 pont)
+Bővítse a novenyek komponenst, melynek feladata, hogy kilistázza a növényeket, lehetőséget biztosítson a választott termék kosárba helyezésére. (Egy megrendelő több növényt is rendelhet egyszerre!) A növények backendből való lekérdezéséhez a metódust vagy metódusokat a base.service-ben, a kosárba helyezéshez szükséges metódust vagy metódusokat a kosar.service-ben valósítsa meg. (services/base.service, services/kosar.service).
+Ellenőrizni kell, hogy megvannak-e a következő importok az app-module.ts-ben
+app.module.ts
+. . .
+import { FormsModule } from '@angular/forms';
+import { AngularFireModule } from '@angular/fire/compat';
+import { AngularFireDatabaseModule } from '@angular/fire/compat/database';
+
+. . .
+imports: [
+	. . . ,
+	AngularFireModule.initializeApp(Enviroments.firebaseConfig),
+	AngularFireDatabaseModule,
+	FormsModule
+]
+. . . 
+ 
+base.service.ts (alap metódusok megírása)
+import { Injectable } from '@angular/core';
+Figyelni, hogy az importok hozzáadódjanak!
+
+@Injectable({
+  providedIn: 'root'
+})
+export class BaseService {
+
+     refNovenyek : AngularFireList <Noveny> 	//Noveny.ts miatt, ez az adatmodell neve
+
+  constructor(private db:AngularFireDatabase) { 
+     this.refNovenyek = this.db.list ( ’’ /novenyek ’’)  //Firebase-ben ezen a csomóponton vannak az adatok
+  }
+
+  getPlants( ) {
+     return this.refNovenyek
+  }
+}
+
+novenyek.component.ts (metódusok meghívása a base.service.ts-ből)
+
+Figyelni, hogy az importok hozzáadódjanak!
+. . .
+export class NovenyekComponent {
+
+     novenyek : any
+
+     constructor (private base : BaseService) {
+	this.base.getPlants( ).snapshotChanges( )
+	.pipe(
+	   map(
+	      (ch) => ch.map(
+		(c) => ( { key:c.payload.key, …c.payload.val( ) } )
+	      )))
+	.subscribe(
+	   (res) => this.novenyek = res)
+     }
+}
+
+ 
+novenyek.component.html (növények megjelenítése)
+
+<div class=”row”>
+   <div *ngFor = "let plant of novenyek" class="col-12 col-md-6 col-lg-4 col-xl-3">
+      <div class="card h-100">
+      	<img [src]="plant.kepUrl" class="card-img-top" [alt]="plant.megnevezes">
+            <div class="card-body">
+                 <h5 class="card-title"> {{plant.megnevezes}} </h5>
+                 <p class="card-text"> {{plant.leiras}} </p>
+            </div>
+        <div class="card-footer">
+	<p class="card-text"> {{plant.ar}} Ft </p>
+<div class="input-group mb-3">
+  	    <span class="input-group-text" id="basic-addon1">Db</span>
+  	    <input #db type="number" class="form-control" value =”1” min =”0” >
+	    <button (click) = ”hozzaad(plant, db.value)” type=”button”> Hozzáad </button>
+            </div>
+        </div>
+    </div>
+
+A feladat szerint a kosar.service.ts-ben kell megírni a kosárba helyezéshez szükséges metódusokat  hozzáad click esemény megírása. 
+
+ 
+kosar.service.ts (kosárba helyezéshez szükséges metódusok megírása)
+
+import { Injectable } from '@angular/core';
+Figyelni, hogy az importok hozzáadódjanak!
+
+@Injectable({
+  providedIn: 'root'
+})
+export class KosarService {
+    
+    kosar : any;
+    kosarSub = new BehaviorSubject <any> (null)
+
+  constructor( ) {
+    this.kosar = [ ]
+ }
+
+  getKosar ( ) {
+	return this.kosarSub
+  }
+
+  addTetel (plant : any, db : any ) {
+	let i = this.kosar.findIndex (
+ (e:any) => e.key = = plant.key) //megnézi, hogy van-e már a listában az tétel
+if ( i = = -1) this.kosar.push ({key : plant.key, ar : plant.ar, db : db }) //ha nincs, hozzáadja
+	else this.kosar[ i ].db = db //ha van, felülírja a darabszámot
+	this.kosarSub.next (this.kosar)
+    }
+}
+
+Ezután a novenyek.component.ts kiegészül a hozzaad funkcióval: 
+novenyek.component.ts
+…
+export class NovenyekComponent {
+
+     novenyek : any
+
+     constructor (private base : BaseService) {
+	this.base.getPlants( ).snapshotChanges( )
+	.pipe(
+	   map(
+	      (ch) => ch.map(
+		(c) => ( { key:c.payload.key, …c.payload.val( ) } )
+	      )))
+	.subscribe(
+	   (res) => this.novenyek = res)
+     }
+
+    hozzaad (plant : any , db : any){
+	this.kosar.addTetel (plant, db)
+    }
+}
+5) Feladat 20 pont
+Bővítse funkcióiban a rendeles komponenst, amely bekéri megrendelő adatait (nevét és címét) valamint lehetőséget biztosít a rendelés elküldésére. A rendelés felvétele után irányítsa át vagy vissza az alkalmazást a rolunk komponensre.
+A rendelésekhez szükséges alap metódusok továbbra is a kosar.service-ben íródnak.
+kosar.service.ts (kosárba helyezéshez szükséges metódusok megírása)
+
+import { Injectable } from '@angular/core';
+Figyelni, hogy az importok hozzáadódjanak!
+
+@Injectable({
+  providedIn: 'root'
+})
+export class KosarService {
+    
+    kosar : any;
+    kosarSub = new BehaviorSubject <any> (null)
+
+  constructor( ) {
+    this.kosar = [ ]
+ }
+
+  getKosar ( ) {
+	return this.kosarSub
+  }
+
+  addTetel (plant : any, db : any ) {
+	let i = this.kosar.findIndex (
+ (e:any) => e.key = = plant.key) //megnézi, hogy van-e már a listában az tétel
+if ( i = = -1) this.kosar.push ({key : plant.key, ar : plant.ar, db : db }) //ha nincs, hozzáadja
+	else this.kosar[ i ].db = db //ha van, felülírja a darabszámot
+	this.kosarSub.next (this.kosar)
+    }
+
+  deleteTetel ( key : any ) {
+	this.kosar = this.kosar.filter(
+	    (elem : any) => elem.key != key
+	)
+	this.kosarSub.next (this.kosar)
+  }
+  deleteKosar ( ) {
+	this.kosar = [ ]
+   }
+}
+
+
+A base.service-ben létrehozzuk a metódust, ami hozzáadja a Firebase Realtime adatbázishoz a megrendelő és rendelés adatait.
+base.service.ts
+import { Injectable } from '@angular/core';
+import { AngularFireDatabase, AngularFireList } from '@angular/fire/compat/database';
+import { Noveny } from '../model/noveny';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class BaseService {
+
+  refNovenyek: AngularFireList<Noveny>
+  refMegrendeles: AngularFireList<any>
+
+  constructor(private db:AngularFireDatabase) {
+    this.refNovenyek= this.db.list("/novenyek")
+    this.refMegrendeles= this.db.list("/megrendelesek") 
+   }
+
+  getPlants(){
+    return this.refNovenyek
+  }
+  megrendel(body:any){      
+    return this.refMegrendeles.push(body)
+  }
+} 
+rendeles.component.ts
+Figyelni, hogy az importok hozzáadódjanak!
+. . .
+export class RendelesComponent {
+	nev : any;
+	cim : any;
+	kosar : any;
+	novenyek : any;
+    constructor (private router:Router, private base:BaseService, private kosarS:KosarService){
+	this.kosar.getKosar( ).subscribe (
+	    (res) => this.kosar = res
+	) // kosár service-től elkérjük a kosár tartalmát
+	this.base.getPlants( ).snapshotChanges ( )  //base service-től elkérem a növényeket
+	.pipe (
+	   map (
+	      (ch) => ch.map (
+		(c) => ( { key : c.payload.key, …c.payload.val( ) } )
+	      )))
+	.subscribe ( (res) => this.novenyek.res )
+    }
+    nevKereses ( key : any) { //ez a metódus a kulcs alapján megkeresi a növényt, és a nevét írja ki
+	let i = this.novenyek.findIndex (
+		(elem : any) => elem.key = = key
+	)
+	return this.novenyek [ i ].megnevezes
+     }
+     tetelTorol (key : any) {
+	this.kosarS.deleteTetel (key)
+     }
+     
+ 
+megrendelesLead ( ) {
+	let body = {
+		nev: this.nev,
+		cim: this.cim,
+		datum: new Date ( ).toLocaleString ( ),
+		statusz: ”Leadva”,
+		tetelek: this.kosar
+     	}
+  }
+this.base.megrendel (body).then (
+	( ) => {
+	     this.kosarS.deleteKosar( )
+	     this.router.navigate ([’/novenyek])
+	}
+)
+}
+ 
+
+rendeles.component.html
+<div class="card">
+   
+    <div class="card-body">
+      <h5 class="card-title">Megrendelés</h5>
+      
+      <div class="form-floating mb-3">
+        <input [(ngModel)]="nev" name="name" type="text" class="form-control" id="name" >
+        <label for="name">Név</label>
+      </div>
+      <div class="form-floating mb-3">
+        <input [(ngModel)]="cim" name="cim" type="text" class="form-control" id="cim" >
+        <label for="cim">Cím</label>
+      </div>
+      
+      <div *ngIf="kosar && novenyek" class="alert alert-success" role="alert">
+       <div *ngFor="let tetel of kosar" class="row">
+        <div class="col"> {{nevKereses(tetel.key)}} </div>
+        <div class="col"> {{tetel.db}} db </div>
+        <div class="col"> {{tetel.ar*tetel.db}}Ft </div>
+        <div class="col">
+            <button (click)="tetelTorol(tetel.key)" type="button" >Tétel törlése</button>
+        </div>
+       </div>
+      </div>
+
+      <button (click)="megrendelesLead()" type="button" >Megrendelés véglegesítése</button>
+    </div>
+  </div>
+ 
+6) Feladat (15 pont)
+Hozzon létre pipe-ot filter néven és ennek használatával készítsen megnevezés szerinti keresését a noveny komponensben.
+ng g pipe filter
+filter.pipe.ts
+import { Pipe, PipeTransform } from '@angular/core';
+
+@Pipe({
+  name: 'filter'
+})
+export class FilterPipe implements PipeTransform {
+
+  transform(tomb:any[ ], keresendo:any): any {
+    if (!tomb) return null;
+    if (!keresendo) return tomb;
+
+    tomb=tomb.filter(
+      (elem)=>elem.megnevezes.toLowerCase( ).includes(keresendo.toLowerCase( ))
+    )
+    return tomb
+  }
+}
+
+A novenyek.component.html kiegészül a keresővel.
+
+novenyek.component.html
+.
+.
+.
+<div *ngFor = "let plant of novenyek | filter : keresendo" class="col-12 col-md-6 col-lg-4">
+.
+.
+.
