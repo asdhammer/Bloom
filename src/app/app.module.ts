@@ -11,12 +11,18 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { RolunkComponent } from './part/rolunk/rolunk.component';
 import { NavComponent } from './part/nav/nav.component';
 import { Enviroments } from './enviroments';
+import { NovenyekComponent } from './part/novenyek/novenyek.component';
+import { RendelesComponent } from './part/rendeles/rendeles.component';
+import { FilterPipe } from './filter.pipe';
 
 @NgModule({
   declarations: [
     AppComponent,
     RolunkComponent,
-    NavComponent
+    NavComponent,
+    NovenyekComponent,
+    RendelesComponent,
+    FilterPipe
   ],
   imports: [
     BrowserModule,
